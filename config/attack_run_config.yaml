@@ -5,7 +5,7 @@ exp_name: '_MULTI'
 exp_model_name: '_MULTI'
 
 model_folder: checkpoints/${dataset.name}/${attack_model.name}/${exp_model_name}
-disc_path: results/${dataset.name}/${attack_model.name}/discriminator/fgsm_attack_MULTI
+disc_path: results/${dataset.name}/${attack_model.name}/discriminator/fgsm_attack_${exp_name}
 save_path: results/${dataset.name}/${attack_model.name}/attack/${attack.short_name}${exp_name}
 
 model_id_attack: 100

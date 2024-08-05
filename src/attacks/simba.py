@@ -1,7 +1,7 @@
 import torch
 
 from .base_attacks import BaseIterativeAttack
-from .regularizers import reg_disc, reg_neigh, reg_disc_no_attack
+from .regularizers import reg_disc, reg_neigh
 
 
 class SimBABinary(BaseIterativeAttack):
