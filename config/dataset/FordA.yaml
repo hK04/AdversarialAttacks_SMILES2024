@@ -1,16 +1,16 @@
 name: FordA
 num_classes: 2
 seq_len: 500
-total_object_count: 1598
+total_object_count: 4921
 train:
-  object_count: 799
-  max: .nan
-  mean: .nan
-  min: .nan
-  roughness: .nan
+  object_count: 3601
+  max: 5.0592276
+  mean: -2.32319531420152e-11
+  min: -4.6176935
+  roughness: 0.0932141258660561
 test:
-  object_count: 799
-  max: .nan
-  mean: .nan
-  min: .nan
-  roughness: .nan
+  object_count: 1320
+  max: 4.3151462
+  mean: -3.660013626582633e-11
+  min: -4.5565409
+  roughness: 0.09391941213989796
