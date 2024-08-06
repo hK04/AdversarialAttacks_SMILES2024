@@ -1,0 +1,16 @@
+name: MoteStrain
+num_classes: 2
+seq_len: 84
+total_object_count: 1272
+train:
+  object_count: 20
+  max: 2.468436
+  mean: 8.080655044566465e-10
+  min: -8.40928
+  roughness: 0.29656840238429877
+test:
+  object_count: 1252
+  max: 8.5444416
+  mean: 3.976785430702233e-12
+  min: -8.6379957
+  roughness: 0.27052124695029484

@@ -1,0 +1,16 @@
+name: FordB
+num_classes: 2
+seq_len: 500
+total_object_count: 1597
+train:
+  object_count: 798
+  max: .nan
+  mean: .nan
+  min: .nan
+  roughness: .nan
+test:
+  object_count: 799
+  max: .nan
+  mean: .nan
+  min: .nan
+  roughness: .nan

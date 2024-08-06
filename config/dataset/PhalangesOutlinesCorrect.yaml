@@ -1,0 +1,16 @@
+name: PhalangesOutlinesCorrect
+num_classes: 2
+seq_len: 80
+total_object_count: 2658
+train:
+  object_count: 1800
+  max: 2.4457132
+  mean: 7.69959266714674e-12
+  min: -2.1589217
+  roughness: 0.06729271059863588
+test:
+  object_count: 858
+  max: 2.460166
+  mean: 3.341121008453591e-11
+  min: -2.1798871
+  roughness: 0.0729224558890836

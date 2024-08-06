@@ -1,0 +1,16 @@
+name: DistalPhalanxOutlineCorrect
+num_classes: 2
+seq_len: 80
+total_object_count: 876
+train:
+  object_count: 600
+  max: 2.4457132
+  mean: -3.363233152716324e-10
+  min: -2.1589217
+  roughness: 0.08393588881871603
+test:
+  object_count: 276
+  max: 2.460166
+  mean: -1.5270654949890212e-10
+  min: -2.1798871
+  roughness: 0.09590691711738855

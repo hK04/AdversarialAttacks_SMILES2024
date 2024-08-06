@@ -1,20 +1,16 @@
 name: FreezerRegularTrain
 num_classes: 2
 seq_len: 301
-total_object_count: 3000
+total_object_count: 1512
 train:
   object_count: 150
   max: 5.0221355
   mean: 9.361460188311934e-11
   min: -2.2294504
-  std: 0.9983374884114627
-  median: 0.49202215
   roughness: 0.044626377470920846
 test:
-  object_count: 2850
-  max: 17.147759
-  mean: -1.961832816797836e-11
-  min: -2.2296427
-  std: 0.9983374885036826
-  median: 0.4907972
-  roughness: 0.04412663137700459
+  object_count: 1362
+  max: .nan
+  mean: .nan
+  min: .nan
+  roughness: .nan

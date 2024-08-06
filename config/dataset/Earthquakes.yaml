@@ -1,0 +1,16 @@
+name: Earthquakes
+num_classes: 2
+seq_len: 512
+total_object_count: 461
+train:
+  object_count: 322
+  max: 7.8634315
+  mean: -1.3119904955410483e-10
+  min: -0.88581698
+  roughness: 1.3787379723751674
+test:
+  object_count: 139
+  max: 7.7280663
+  mean: 7.188624124422905e-10
+  min: -0.7301891
+  roughness: 1.427201532701086

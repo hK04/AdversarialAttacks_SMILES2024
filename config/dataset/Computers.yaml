@@ -1,0 +1,16 @@
+name: Computers
+num_classes: 2
+seq_len: 720
+total_object_count: 500
+train:
+  object_count: 250
+  max: 21.596191
+  mean: 2.4295765557427433e-10
+  min: -3.7477042
+  roughness: 0.35743494600713915
+test:
+  object_count: 250
+  max: 26.386711
+  mean: -5.205338698349099e-10
+  min: -1.6113314
+  roughness: 0.2903681891647148
