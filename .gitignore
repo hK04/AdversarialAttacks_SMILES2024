@@ -1,7 +1,6 @@
 raw.githubusercontent.com/hfawaz/cd-diagram/*
 results/*
 results_old/*
-data/*
 checkpoints/*
 *credentials*
 .ipynb_checkpoints/*
