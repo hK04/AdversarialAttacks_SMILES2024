@@ -1,7 +1,5 @@
 # Hidden_adversarial attacks
 
-Repo for research project in My University '23.
-
 ## Quick Start
 
 If you want to work with project with Docker, you can use folder **docker_scripts**.
