@@ -1,0 +1,16 @@
+name: SimBABinary
+short_name: simba_attack
+
+attack_params:
+  eps: [0.05]
+  n_steps: 10
+
+hyperparameters_vary:
+  eps:
+    optuna_type: float
+    low: 0.01
+    high: 0.5
+    log: True
+  n_steps:
+    optuna_type: const
+    value: 50
