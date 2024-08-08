@@ -6,4 +6,6 @@ from .TS2Vec import TS2VEC
 from .TST import TST
 from .PatchTST import PatchTST
 from .Rocket import Rocket
+from .FEDformer import FEDformer
+from .CrossFormer import CrossFormer
 from .AutoFormer import AutoFormer
