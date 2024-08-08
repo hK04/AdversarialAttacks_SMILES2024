@@ -81,7 +81,7 @@ class FEDformer(BaseModel):
         enc_out, attns = self.encoder(enc_out, attn_mask=None)
 
         output = self.dropout(enc_out)
-        #output = output.reshape(output.shape[0], -1)
+        output = output.reshape(output.shape[0], -1)
         output = self.projection(output)
 
         return self.final_activaton(output)
