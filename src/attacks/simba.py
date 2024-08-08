@@ -1,12 +1,20 @@
 import torch
 
-from .base_attacks import BaseIterativeAttack
+from src.attacks.base_attacks import BaseIterativeAttack
+from src.attacks.procedures import BatchIterativeAttack
 from .regularizers import reg_disc, reg_neigh
 
 
-class SimBABinary(BaseIterativeAttack):
-    def __init__(self, model, criterion, eps, n_steps, device="cpu"):
+class SimBABinary(BaseIterativeAttack, BatchIterativeAttack):
+    def __init__(self, model, criterion, eps, n_steps, estimator, device="cpu", **kwargs):
         super().__init__(model, criterion, eps, n_steps, device=device)
+        BaseIterativeAttack.__init__(self, model=model, n_steps=n_steps)
+        BatchIterativeAttack.__init__(self, estimator=estimator)
+        self.criterion = criterion
+        self.criterion.reduction='none'
+        self.is_regularized = False
+
+        self.eps = eps
 
     def get_loss(self, X: torch.Tensor, y_true: torch.Tensor) -> torch.Tensor:
         self.model.zero_grad()
@@ -14,13 +22,12 @@ class SimBABinary(BaseIterativeAttack):
         loss = self.criterion(y_pred, y_true)
         return loss
 
-    def generate_changes(X):
-        rand_ind = torch.randint(X.shape[1], (1,))[0]
-        mask = torch.zeros(X.shape).to(self.device)
-        mask[:, rand_ind] = mask[:, rand_ind] + 1
+    def generate_changes(self, X):
+        random_indices = torch.randint(0, X.shape[1], (X.shape[0], 1, 1)).to(self.device)
 
-        X_minus = X - mask * self.eps
-        X_plus = X + mask * self.eps
+        ones = torch.ones_like(X)
+        X_minus = X.scatter_add(1, random_indices, -self.eps * ones)
+        X_plus = X.scatter_add(1, random_indices, self.eps * ones)
 
         return X_minus, X_plus
 
@@ -32,23 +39,20 @@ class SimBABinary(BaseIterativeAttack):
         y_pred_minus = self.model(X_minus)
         y_pred_plus = self.model(X_plus)
 
-        X_all = torch.cat([X, X_minus, X_plus]).view(3, *X.shape)
-        losses = torch.stack(
-            [
-                self.criterion(y_pred, y_true),
-                self.criterion(y_pred_minus, y_true),
-                self.criterion(y_pred_plus, y_true),
-            ],
-            dim=0,
-        )
+        data_all = torch.cat([X, X_minus, X_plus], dim=-1)
 
-        max_loss_indices = torch.argmax(losses, dim=0)
-        max_loss_indices = (
-        max_loss_indices.unsqueeze(-1).unsqueeze(-1).expand(-1, x.shape[-1])
-        )
+        losses = torch.stack([
+            self.criterion(y_pred, y_true), 
+            self.criterion(y_pred_minus, y_true), 
+            self.criterion(y_pred_plus, y_true)], dim=0)
 
-        X_adv = torch.gather(X_all, 0, max_loss_indices).squeeze(0)
-        return X_adv
+        ind = losses.argmax(0)
+        res = torch.zeros(*data_all.shape[:-1], 1).to(self.device)
+
+        for i, row in enumerate(data_all):
+            res[i, :, :] = row[:, ind[i].item()].unsqueeze(-1)
+
+        return res
 
 
 class SimBABinaryDiscReg(SimBABinary):
@@ -79,7 +83,7 @@ class SimBABinaryDiscReg(SimBABinary):
 
         max_loss_indices = torch.argmax(losses, dim=0)
         max_loss_indices = (
-            max_loss_indices.unsqueeze(-1).unsqueeze(-1).expand(-1, x.shape[-1])
+            max_loss_indices.unsqueeze(-1).unsqueeze(-1).expand(-1, X.shape[-1])
         )
 
         X_adv = torch.gather(X_all, 0, max_loss_indices).squeeze(0)
