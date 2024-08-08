@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import math
+from src.models.FEDformer_src.layers.SelfAttention_Family import FullAttention
 
 
 class my_Layernorm(nn.Module):
@@ -28,8 +30,8 @@ class moving_avg(nn.Module):
 
     def forward(self, x):
         # padding on the both ends of time series
-        front = x[:, 0:1, :].repeat(1, (self.kernel_size - 1) // 2, 1)
-        end = x[:, -1:, :].repeat(1, (self.kernel_size - 1) // 2, 1)
+        front = x[:, 0:1, :].repeat(1, self.kernel_size - 1-math.floor((self.kernel_size - 1) // 2), 1)
+        end = x[:, -1:, :].repeat(1, math.floor((self.kernel_size - 1) // 2), 1)
         x = torch.cat([front, x, end], dim=1)
         x = self.avg(x.permute(0, 2, 1))
         x = x.permute(0, 2, 1)
@@ -50,6 +52,35 @@ class series_decomp(nn.Module):
         return res, moving_mean
 
 
+class series_decomp_multi(nn.Module):
+    """
+    Series decomposition block
+    """
+    def __init__(self, kernel_size):
+        super(series_decomp_multi, self).__init__()
+        self.moving_avg = [moving_avg(kernel, stride=1) for kernel in kernel_size]
+        self.layer = torch.nn.Linear(1, len(kernel_size))
+
+    def forward(self, x):
+        moving_mean=[]
+        for func in self.moving_avg:
+            moving_avg = func(x)
+            moving_mean.append(moving_avg.unsqueeze(-1))
+        moving_mean=torch.cat(moving_mean,dim=-1)
+        moving_mean = torch.sum(moving_mean*nn.Softmax(-1)(self.layer(x.unsqueeze(-1))),dim=-1)
+        res = x - moving_mean
+        return res, moving_mean 
+
+
+class FourierDecomp(nn.Module):
+    def __init__(self):
+        super(FourierDecomp, self).__init__()
+        pass
+
+    def forward(self, x):
+        x_ft = torch.fft.rfft(x, dim=-1)
+
+
 class EncoderLayer(nn.Module):
     """
     Autoformer encoder layer with the progressive decomposition architecture
@@ -60,8 +91,14 @@ class EncoderLayer(nn.Module):
         self.attention = attention
         self.conv1 = nn.Conv1d(in_channels=d_model, out_channels=d_ff, kernel_size=1, bias=False)
         self.conv2 = nn.Conv1d(in_channels=d_ff, out_channels=d_model, kernel_size=1, bias=False)
-        self.decomp1 = series_decomp(moving_avg)
-        self.decomp2 = series_decomp(moving_avg)
+
+        if isinstance(moving_avg, list):
+            self.decomp1 = series_decomp_multi(moving_avg)
+            self.decomp2 = series_decomp_multi(moving_avg)
+        else:
+            self.decomp1 = series_decomp(moving_avg)
+            self.decomp2 = series_decomp(moving_avg)
+
         self.dropout = nn.Dropout(dropout)
         self.activation = F.relu if activation == "relu" else F.gelu
 
@@ -121,9 +158,16 @@ class DecoderLayer(nn.Module):
         self.cross_attention = cross_attention
         self.conv1 = nn.Conv1d(in_channels=d_model, out_channels=d_ff, kernel_size=1, bias=False)
         self.conv2 = nn.Conv1d(in_channels=d_ff, out_channels=d_model, kernel_size=1, bias=False)
-        self.decomp1 = series_decomp(moving_avg)
-        self.decomp2 = series_decomp(moving_avg)
-        self.decomp3 = series_decomp(moving_avg)
+
+        if isinstance(moving_avg, list):
+            self.decomp1 = series_decomp_multi(moving_avg)
+            self.decomp2 = series_decomp_multi(moving_avg)
+            self.decomp3 = series_decomp_multi(moving_avg)
+        else:
+            self.decomp1 = series_decomp(moving_avg)
+            self.decomp2 = series_decomp(moving_avg)
+            self.decomp3 = series_decomp(moving_avg)
+
         self.dropout = nn.Dropout(dropout)
         self.projection = nn.Conv1d(in_channels=d_model, out_channels=c_out, kernel_size=3, stride=1, padding=1,
                                     padding_mode='circular', bias=False)
@@ -134,11 +178,13 @@ class DecoderLayer(nn.Module):
             x, x, x,
             attn_mask=x_mask
         )[0])
+
         x, trend1 = self.decomp1(x)
         x = x + self.dropout(self.cross_attention(
             x, cross, cross,
             attn_mask=cross_mask
         )[0])
+
         x, trend2 = self.decomp2(x)
         y = x
         y = self.dropout(self.activation(self.conv1(y.transpose(-1, 1))))
