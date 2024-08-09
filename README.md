@@ -1,4 +1,25 @@
-# Adversarial attacks on transformers 
+# Adversarial attacks on transformers: SMILES 2024 
+
+## Resutls
+
+The results are located in the `/Final Results` folder and can be accessed using `Plot-sample.ipynb`.
+
+To add more files with attack results, follow the given structure:
+
+```
+Dataset1
+    Model1
+        PGD
+            aa_res_Dataset1_100.csv
+        SimBA
+            aa_res_Dataset1_100.csv
+    Model2
+        PGD
+            aa_res_Dataset1_100.csv
+        SimBA
+            aa_res_Dataset1_100.csv
+```
+
 
 ## Quick Start
 
