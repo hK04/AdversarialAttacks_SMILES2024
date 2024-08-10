@@ -1,0 +1,56 @@
+slice: False
+use_disc_check: False
+test_run: False # If true results will be not saved!!!!
+exp_name: '_MULTI'
+exp_model_name: ''
+
+model_folder: checkpoints/${dataset.name}/${attack_model.name}/${exp_model_name}
+disc_path: results/${dataset.name}/${attack_model.name}/discriminator/fgsm_attack_${exp_name}
+save_path: results/${dataset.name}/${attack_model.name}/attack/${attack.short_name}${exp_name}
+
+model_id_attack: 100
+
+defaults:
+  - dataset: PowerCons
+  - model@attack_model: PatchTST
+  - model@disc_model_reg: PatchTST
+  - model@disc_model_check: PatchTST
+  - attack: PGD
+
+transform_data: []
+
+criterion_name: BCELoss
+criterion_params: null
+
+metric_effect: F1
+metric_hid: ROC_AUC_DISC
+
+batch_size: 64
+estimator_batch_size: null
+cuda: 'cuda:0'
+
+training_params:
+  model_name: ${attack_model.name}
+  model_params: ${attack_model.params}
+  criterion_name: BCELoss
+  criterion_params: None
+  optimizer_name: Adam
+  optimizer_params:
+    lr: 0.0001
+  scheduler_name: StepLR
+  scheduler_params:
+    step_size: 30
+    gamma: 0.8
+  n_epochs: 60
+  early_stop_patience: 50
+
+enable_optimization: False
+optuna_optimizer:
+  n_trials: 5
+  sampler:
+    _target_: optuna.samplers.TPESampler
+    seed: 0
+  pruner:
+    _target_: optuna.pruners.MedianPruner
+  hyperparameters_vary:
+    ${attack.hyperparameters_vary}
