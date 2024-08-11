@@ -1,0 +1,19 @@
+slice: False
+exp_name: ''
+exp_model_name: ''
+
+model_folder: checkpoints/${dataset.name}/${model.name}/${exp_model_name}
+
+model_id: 100
+
+defaults:
+  - dataset: FordA
+  - model@model: AutoFormer
+
+batch_size: 64
+scale: 3
+grid_dim: 101
+cuda: 'cuda:0'
+
+list_check_model_params:
+  - model_id : ${model_id}
